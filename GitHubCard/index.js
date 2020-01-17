@@ -24,32 +24,114 @@
           user, and adding that card to the DOM.
 */
 
-const followersArray = [];
 
-/* Step 3: Create a function that accepts a single object as its only argument,
-          Using DOM methods and properties, create a component that will return the following DOM element:
 
-<div class="card">
-  <img src={image url of user} />
-  <div class="card-info">
-    <h3 class="name">{users name}</h3>
-    <p class="username">{users user name}</p>
-    <p>Location: {users location}</p>
-    <p>Profile:  
-      <a href={address to users github page}>{address to users github page}</a>
-    </p>
-    <p>Followers: {users followers count}</p>
-    <p>Following: {users following count}</p>
-    <p>Bio: {users bio}</p>
-  </div>
-</div>
 
-*/
 
-/* List of LS Instructors Github username's: 
-  tetondan
-  dustinmyers
-  justsml
-  luishrd
-  bigknell
-*/
+
+const cards = document.querySelector(".cards");
+
+axios.get("https://api.github.com/users/N0m0n3y")
+  .then(response => {
+    console.log(response.data);
+    const data = githubCreator(response.data);
+  })
+  .catch(error => {
+    console.log(`NOW LOOK YOU BROKE EVERYTHING!`, error);
+  })
+
+// wasnt very pretty or Dynamic
+  // const followersArray = [
+  //   ' https://api.github.com/users/MicahJank',
+  //   "https://github.com/DustinThewind505",
+  //   "https://api.github.com/users/lihuang-zheng",
+  //   "https://api.github.com/users/tdefriess",
+  //   "https://api.github.com/users/MarioR81",
+  //   "https://api.github.com/users/Nobro777",
+  //   "https://api.github.com/users/kaverndsp",
+  //   "https://api.github.com/users/amberlowe1001",
+  //   "https://api.github.com/users/dmhabh1992",
+  //   "https://api.github.com/users/VodeniZeko",
+  //   "https://api.github.com/users/1devhall",
+  //   "https://api.github.com/users/darkwolfxj",
+  //   "https://api.github.com/users/taylorroebuck",
+  //   "https://api.github.com/users/seanaleid",
+  //   "https://api.github.com/users/Reikiryo",
+  //   "https://api.github.com/users/M-PAW",
+  //   "https://api.github.com/users/msinnema33",
+  //   "https://api.github.com/users/AlecDye",
+  //  ];
+
+
+
+
+
+  
+// Now This Below on the other hand....
+
+  const followers = []; //<~~~~~~~ That rite there, empty array thats Dynamic.
+
+
+  axios.get("https://api.github.com/users/N0m0n3y/followers")
+    .then(response => {
+      console.log(response)
+      response.data.forEach(el => {
+        followers.push(el.login);
+      })
+      followers.forEach(el => {
+        axios.get("https://api.github.com/users/" + el)
+        .then(response => {
+          const lol = githubCreator(response.data);
+      });
+      });
+    })
+  
+
+
+    function githubCreator(obj){
+      // Put div here another div there
+       const card = document.createElement("div"),
+       cardInfo = document.createElement("div"),
+       //h3 
+       theName = document.createElement("h3"),
+       // anchor
+       profileLink = document.createElement("a"),
+       //lots of Ps
+       username = document.createElement("p"),
+       location = document.createElement("p"),
+       profile = document.createElement("p"),
+       followers = document.createElement("p"),
+       following = document.createElement("p"),
+       bio = document.createElement("p"),
+       //And but of course something for the eyes my friend.
+       avitar = document.createElement("img")
+    
+      
+      
+    // Without Class we would be savages so below let there be Class
+      card.classList.add("card");
+      cardInfo.classList.add("card-info");
+      theName.classList.add("name");
+      username.classList.add("username");
+    
+     // Dropping some textContent DOWN BELOW ;)
+      theName.textContent = obj.name;
+      username.textContent = obj.login;
+      profile.textContent = `Profile:`
+      profileLink.textContent = obj.html_url;
+      avitar.src = obj.avatar_url;
+      location.textContent = `Location: ${obj.location}`
+      profileLink.setAttribute("href", obj.html_url);
+      followers.textContent = `Followers: ${obj.followers}`;
+      following.textContent = `Following: ${obj.following}`;
+      bio.textContent = obj.bio;
+
+
+      // appending stuff down here
+      cards.appendChild(card);
+      card.append(avitar, cardInfo);
+      cardInfo.append(theName, username, location, profile, followers, following, bio);
+      profile.append(profileLink);
+    
+      return card;
+    }
